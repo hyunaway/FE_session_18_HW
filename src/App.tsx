@@ -11,15 +11,22 @@ const DUMMY: Post[] = [
 ];
 
 function App() {
-  // 과제 1-1: DUMMY를 초기값으로 하는 게시글 상태를 만드세요. 타입 인자 Post[]를 직접 적습니다.
   const [posts, setPosts] = useState<Post[]>(DUMMY);
-
-  // 과제 2-1: 선택한 게시글 상태를 Post | null 타입, 초기값 null로 만드세요.
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
-
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [author, setAuthor] = useState("");
+
+  // Todo1 : App에 상태 추가
+  const [favorites, setFavorites] = useState<Post[]>([]);
+
+  // Todo2 : toggleFavorite 함수
+  const toggleFavorite = (post: Post) => {
+    const exception = favorites.some((f) => f.id === post.id);
+    if (exception) setFavorites(favorites.filter((f) => f.id !== post.id)); // 빼기
+    else setFavorites([...favorites, post]);                             // 끝에 추가
+  };
+
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(e.target.value);
@@ -38,7 +45,6 @@ function App() {
   };
 
   const handleAddPost = () => {
-    // 과제 1-3: trim()한 입력값으로 NewPost 객체를 만들고, 하나라도 비어 있으면 추가하지 않습니다.
     const newPost: NewPost = {
       title: title.trim(),
       content: content.trim(),
@@ -47,14 +53,12 @@ function App() {
 
     if (!newPost.title || !newPost.content || !newPost.author) return;
 
-    // 과제 1-4: NewPost에 id: Date.now()를 더해 기존 배열 뒤에 새 배열로 추가하고 입력창을 비웁니다.
     setPosts([...posts, { ...newPost, id: Date.now() }]);
     setTitle("");
     setContent("");
     setAuthor("");
   };
 
-  // 과제 3-3: posts.length에 따라 성공 또는 빈 상태 객체를 만드세요. 변수 타입은 PostListState로 적습니다.
   const postListState: PostListState =
     posts.length === 0
       ? { status: "empty" }
@@ -81,11 +85,13 @@ function App() {
       />
       <Button label="추가" onClick={handleAddPost} />
 
-      {/* 과제 1-1: DUMMY 대신 게시글 상태로 렌더링하세요. */}
-      {/* 과제 3-3: 아래 목록을 PostList로 바꾸고 목록 상태와 onSelect를 넘기세요. 쓰지 않게 된 import와 List는 지웁니다. */}
-      <PostList state={postListState} onSelect={handleSelectPost} />
+      <PostList
+        state={postListState}
+        onSelect={handleSelectPost}
+        favorites={favorites}
+        onToggleFavorite={toggleFavorite}
+        />
 
-      {/* 과제 2-3: 선택 전에는 "게시글을 선택해주세요.", 선택 후에는 번호·제목·내용·작성자를 보여 주세요. */}
       {selectedPost === null ? (
         <p>게시글을 선택해주세요.</p>
       ) : (
